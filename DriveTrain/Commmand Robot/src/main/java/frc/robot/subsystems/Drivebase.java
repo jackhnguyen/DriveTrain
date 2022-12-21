@@ -7,6 +7,8 @@ import com.revrobotics;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import com.revrobotics.SparkMaxAlternateEncoder;
+import com.revrobotics.SparkMaxAlternateEncoder.Type;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -15,10 +17,34 @@ public class Drivebase extends SubsystemBase {
   public Drivebase() {
 
   }
+
+  private final int diameter = 10;
+
   CANSparkMax m_leftmotor = new CANSparkMax(1, MotorType.kBrushless);
   CANSparkMax m_rightmotor = new CANSparkMax(0, MotorType.kBrushless);
 
   DifferentialDrive m_drive = new DifferentialDrive(m_leftmotor, m_rightmotor);
+
+  public void arcadeDrive(double horizontalSpeed, double rotationSpeed){
+    m_drive.arcadeDrive(horizontalSpeed, rotationSpeed);
+  }
+
+  SparkMaxAlternateEncoder m_leftEncoder = m_leftmotor.getAlternateEncoder(Type.kQuadrature, 5000);
+  SparkMaxAlternateEncoder m_rightEncoder = m_rightmotor.getAlternateEncoder(Type.kQuadrature, 5000);
+
+  public void resetEncoders(){
+    m_leftEncoder.setPosition(0);
+    m_rightEncoder.setPosition(0);
+  }
+
+  public double getLeftDistanceInch(){
+    return m_leftEncoder.getPosition() * diameter * Math.PI;
+  }
+  
+  public double getRightDistanceInch(){
+    return m_rightEncoder.getPosition() * diameter * Math.PI;
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
