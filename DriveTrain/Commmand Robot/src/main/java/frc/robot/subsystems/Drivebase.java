@@ -20,17 +20,21 @@ public class Drivebase extends SubsystemBase {
 
   private final int diameter = 10;
 
-  CANSparkMax m_leftmotor = new CANSparkMax(1, MotorType.kBrushless);
-  CANSparkMax m_rightmotor = new CANSparkMax(0, MotorType.kBrushless);
+  CANSparkMax m_leftSlave = new CANSparkMax(0, MotorType.kBrushless);
+  CANSparkMax m_rightSlave = new CANSparkMax(1, MotorType.kBrushless);
+  CANSparkMax m_leftMaster = new CANSparkMax(2, MotorType.kBrushless);
+  CANSparkMax m_rightMaster = new CANSparkMax(3, MotorType.kBrushless);
 
-  DifferentialDrive m_drive = new DifferentialDrive(m_leftmotor, m_rightmotor);
+  m_leftSlave.follow(m_leftMaster, true);
+  m_leftSlave.follow(m_leftMaster, false);
+  DifferentialDrive m_drive = new DifferentialDrive(m_leftMaster, m_rightMaster);
 
   public void arcadeDrive(double horizontalSpeed, double rotationSpeed){
     m_drive.arcadeDrive(horizontalSpeed, rotationSpeed);
   }
 
-  SparkMaxAlternateEncoder m_leftEncoder = m_leftmotor.getAlternateEncoder(Type.kQuadrature, 5000);
-  SparkMaxAlternateEncoder m_rightEncoder = m_rightmotor.getAlternateEncoder(Type.kQuadrature, 5000);
+  RelativeEncoder m_leftEncoder = m_leftMaster.getAlternateEncoder(Type.kQuadrature, 5000);
+  RelativeEncoder m_rightEncoder = m_rightMaster.getAlternateEncoder(Type.kQuadrature, 5000);
 
   public void resetEncoders(){
     m_leftEncoder.setPosition(0);
@@ -43,6 +47,10 @@ public class Drivebase extends SubsystemBase {
   
   public double getRightDistanceInch(){
     return m_rightEncoder.getPosition() * diameter * Math.PI;
+  }
+
+  publc double getAverageDistance(){
+    return ((m_rightEncoder.getPosition() * diameter * Math.PI) + (m_leftEncoder.getPosition() * diameter * Math.PI;)) / 2
   }
 
   @Override
